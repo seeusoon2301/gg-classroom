@@ -6,6 +6,8 @@ import 'home_screen.dart';
 import 'forget_password_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
 
@@ -75,37 +77,47 @@ class _SignInState extends State<SignIn> {
 
   Future<UserCredential?> loginWithGoogle() async {
     try {
-      final google = GoogleSignIn(scopes: ['email', 'profile']);
-      await google.signOut();
-      final googleUser = await google.signIn();
-      if (googleUser == null) {
-        setState(() => message = "Google login cancelled.");
-        return null;
+      UserCredential userCredential;
+
+      if (kIsWeb) {
+        // Web
+        await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
+        userCredential = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+        await userCredential.user?.reload();
+      } else {
+        GoogleSignIn googleSignIn = GoogleSignIn();
+        await googleSignIn.signOut();
+
+        final googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) return null;
+
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       }
 
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
       final user = userCredential.user;
-
       if (user != null) {
-        final dbRef =
-            FirebaseDatabase.instance.ref("users/${user.uid}");
-        await dbRef.set({
+        final dbRef = FirebaseDatabase.instance.ref("users/${user.uid}");
+        await dbRef.update({
           "uid": user.uid,
           "name": user.displayName ?? "No Name",
           "email": user.email ?? "",
-          "photoUrl": user.photoURL ?? "",
+          "photoUrl": user.photoURL ?? "https://ui-avatars.com/api/?name=${Uri.encodeComponent(user.displayName ?? "User")}",
           "loginMethod": "google",
           "createdAt": DateTime.now().toIso8601String(),
         });
 
-        setState(() => message = "Login successful!");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -114,9 +126,11 @@ class _SignInState extends State<SignIn> {
       return userCredential;
     } catch (e) {
       setState(() => message = "Google login failed.");
+      //print("Google login error: $e");
       return null;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

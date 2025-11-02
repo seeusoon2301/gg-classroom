@@ -26,12 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // ✅ Ưu tiên thông tin từ FirebaseAuth (khi đăng nhập bằng Google)
       String name = user.displayName ?? "User";
       String email = user.email ?? "";
       String photo = user.photoURL ?? "";
 
-      // ✅ Thử lấy thông tin thêm trong Realtime Database (nếu có)
       final uid = user.uid;
       final dbRef = FirebaseDatabase.instance.ref().child("users").child(uid);
       final snapshot = await dbRef.get();
@@ -74,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Tạo danh sách các màn hình
     final List<Widget> _screens = [
       _buildHomeBody(), // Home
       const Center(child: Text('Classes Tab')),
@@ -88,12 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       drawer: _buildDrawer(),
-      body: _screens[_selectedIndex], // ✅ hiển thị đúng màn hình theo index
+      body: _screens[_selectedIndex],
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
-  // ✅ Tách phần Drawer riêng cho gọn
   Drawer _buildDrawer() {
     return Drawer(
       child: ListView(
@@ -144,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ✅ Phần nội dung trang Home (giữ nguyên toàn bộ UI)
   Widget _buildHomeBody() {
     return Stack(
       children: [
@@ -397,7 +392,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ✅ BottomNavigationBar giữ nguyên UI
   Widget _buildBottomNavBar() {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(25.0)),

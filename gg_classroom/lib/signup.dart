@@ -91,7 +91,6 @@ class _SignUpState extends State<SignUp> {
             ),
           ),
 
-          // ✅ Form trên nền mờ
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 32),

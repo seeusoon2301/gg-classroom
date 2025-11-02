@@ -85,7 +85,6 @@ class ProfileTab extends StatelessWidget {
       
             const SizedBox(height: 30),
       
-            // Các mục tùy chọn
             Container(
               decoration: BoxDecoration(
                 color: Colors.white10,

@@ -27,12 +27,12 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      setState(() => message = "Vui lòng nhập email!");
+      setState(() => message = "Please enter your email!");
       return;
     }
 
     if (!_isValidEmail(email)) {
-      setState(() => message = "Email không hợp lệ! Chỉ @gmail.com hoặc @yahoo.com");
+      setState(() => message = "Invalid email format. Only @gmail.com or @yahoo.com domains are supported.");
       return;
     }
 
@@ -50,13 +50,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         MaterialPageRoute(builder: (context) => SignIn()),
       );
     } on FirebaseAuthException catch (e) {
-      String msg = "Đã xảy ra lỗi.";
-      if (e.code == 'user-not-found') msg = 'Email chưa được đăng ký.';
-      if (e.code == 'invalid-email') msg = 'Email không hợp lệ.';
-      if (e.code == 'too-many-requests') msg = 'Quá nhiều yêu cầu. Vui lòng thử lại sau.';
+      String msg = "Something went wrong.Please try again.";
+      if (e.code == 'user-not-found') msg = 'This email is not registered.';
+      if (e.code == 'invalid-email') msg = 'The email format is invalid.';
+      if (e.code == 'too-many-requests') msg = 'Too many attempts. Please try again later.';
       setState(() => message = msg);
     } catch (e) {
-      setState(() => message = "Đã xảy ra lỗi: $e");
+      setState(() => message = "Something went wrong: $e");
     } finally {
       setState(() => _isSending = false);
     }
@@ -137,7 +137,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             ),
                             errorText: !_isValidEmail(_emailController.text.trim()) &&
                                     _emailController.text.isNotEmpty
-                                ? 'Chỉ @gmail.com hoặc @yahoo.com'
+                                ? 'Only @gmail.com or @yahoo.com'
                                 : null,
                           ),
                           style: TextStyle(color: Colors.black),
