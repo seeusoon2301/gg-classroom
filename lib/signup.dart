@@ -4,7 +4,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:gg_classroom/signin.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 
 class SignUp extends StatefulWidget {
 const SignUp({super.key});
@@ -67,10 +66,7 @@ try {
 
   // ✅ Gửi email xác nhận đăng ký thành công
   try {
-    // ⚠️ DÙNG localhost nếu chạy Flutter web, hoặc IP thật nếu dùng emulator/mobile
-    final serverUrl = Platform.isAndroid
-        ? "http://10.0.2.2:5000/send-mail" // Android emulator
-        : "http://localhost:5000/send-mail"; // Flutter web / Windows
+    final serverUrl = "https://gg-classroom-test.vercel.app/api/send-mail";
 
     final response = await http.post(
       Uri.parse(serverUrl),
